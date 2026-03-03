@@ -16,17 +16,17 @@ export const formSubmissionRouter = Router();
 formSubmissionRouter.post(
     '/',
     validateRequest({ body: submitFormSchema.shape.body }),
-    submitFormController
+    (req, res, next) => { void submitFormController(req, res).catch(next); }
 );
 
 // Organizer / Admin Routes
 formSubmissionRouter.get(
     '/:id',
     validateRequest({ params: getSubmissionSchema.shape.params }),
-    getSubmissionController
+    (req, res, next) => { void getSubmissionController(req, res).catch(next); }
 );
 
 formSubmissionRouter.get(
     '/form/:formId',
-    getFormSubmissionsListController
+    (req, res, next) => { void getFormSubmissionsListController(req, res).catch(next); }
 );

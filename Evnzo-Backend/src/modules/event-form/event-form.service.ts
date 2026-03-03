@@ -1,4 +1,5 @@
 import { AppError } from '@utils/appError';
+import { ERROR_TYPES } from '@constant/errorTypes.constant';
 import {
     createEventForm,
     findActiveEventForm,
@@ -15,13 +16,13 @@ export const createEventFormService = async (data: Prisma.EventFormUncheckedCrea
     // Check if event exists
     const event = await prisma.event.findUnique({ where: { id: data.eventId } });
     if (!event) {
-        throw new AppError('Event not found', 404);
+        throw new AppError({ message: 'Event not found', errorType: ERROR_TYPES.NOT_FOUND });
     }
 
     // Check if a form for this target already exists for this event
     const existingForm = await findActiveEventForm(data.eventId, data.target);
     if (existingForm) {
-        throw new AppError(`An active form for ${data.target} already exists for this event`, 409);
+        throw new AppError({ message: `An active form for ${data.target} already exists for this event`, errorType: ERROR_TYPES.CONFLICT });
     }
 
     return createEventForm(data);
@@ -30,7 +31,7 @@ export const createEventFormService = async (data: Prisma.EventFormUncheckedCrea
 export const getEventFormService = async (id: string) => {
     const form = await findEventFormById(id);
     if (!form) {
-        throw new AppError('Event Form not found', 404);
+        throw new AppError({ message: 'Event Form not found', errorType: ERROR_TYPES.NOT_FOUND });
     }
     return form;
 };
@@ -38,7 +39,7 @@ export const getEventFormService = async (id: string) => {
 export const getActiveEventFormService = async (eventId: string, target: 'VISITOR' | 'EXHIBITOR') => {
     const form = await findActiveEventForm(eventId, target);
     if (!form) {
-        throw new AppError(`No active ${target} form found for this event`, 404);
+        throw new AppError({ message: `No active ${target} form found for this event`, errorType: ERROR_TYPES.NOT_FOUND });
     }
     return form;
 };
@@ -46,7 +47,7 @@ export const getActiveEventFormService = async (eventId: string, target: 'VISITO
 export const updateEventFormService = async (id: string, data: Prisma.EventFormUpdateInput) => {
     const form = await findEventFormById(id);
     if (!form) {
-        throw new AppError('Event Form not found', 404);
+        throw new AppError({ message: 'Event Form not found', errorType: ERROR_TYPES.NOT_FOUND });
     }
 
     return updateEventForm(id, data);
@@ -55,7 +56,7 @@ export const updateEventFormService = async (id: string, data: Prisma.EventFormU
 export const deleteEventFormService = async (id: string) => {
     const form = await findEventFormById(id);
     if (!form) {
-        throw new AppError('Event Form not found', 404);
+        throw new AppError({ message: 'Event Form not found', errorType: ERROR_TYPES.NOT_FOUND });
     }
 
     return deleteEventForm(id);

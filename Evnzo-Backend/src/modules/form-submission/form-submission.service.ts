@@ -1,4 +1,5 @@
 import { AppError } from '@utils/appError';
+import { ERROR_TYPES } from '@constant/errorTypes.constant';
 import { prisma } from '@db/prisma';
 import {
     createFormSubmission,
@@ -18,7 +19,7 @@ export const submitFormService = async (
     });
 
     if (!form) {
-        throw new AppError('Active Event Form not found', 404);
+        throw new AppError({ message: 'Active Event Form not found', errorType: ERROR_TYPES.NOT_FOUND });
     }
 
     // 2. Validate answers against form fields
@@ -30,7 +31,7 @@ export const submitFormService = async (
 
         // Check if required field is missing or empty
         if (field.isRequired && (!answer || answer.value === null || answer.value.trim() === '')) {
-            throw new AppError(`Field '${field.label}' is required`, 400);
+            throw new AppError({ message: `Field '${field.label}' is required`, errorType: ERROR_TYPES.VALIDATION_ERROR });
         }
 
         // Check if dropdown/radio answer is within valid options
@@ -40,7 +41,7 @@ export const submitFormService = async (
                 // but for simplicity we assume single choice or strict JSON array string matching.
                 // A more advanced check could parse JSON arrays if CHECKBOX stores multiple answers.
                 if (field.type !== 'CHECKBOX' && !field.options.includes(answer.value)) {
-                    throw new AppError(`Invalid option '${answer.value}' for field '${field.label}'`, 400);
+                    throw new AppError({ message: `Invalid option '${answer.value}' for field '${field.label}'`, errorType: ERROR_TYPES.VALIDATION_ERROR });
                 }
             }
         }
@@ -49,7 +50,7 @@ export const submitFormService = async (
     // 3. Ensure no invalid fieldIds were submitted
     for (const ans of answers) {
         if (!fieldMap.has(ans.fieldId)) {
-            throw new AppError(`Field ID '${ans.fieldId}' does not belong to this form`, 400);
+            throw new AppError({ message: `Field ID '${ans.fieldId}' does not belong to this form`, errorType: ERROR_TYPES.VALIDATION_ERROR });
         }
     }
 
@@ -60,7 +61,7 @@ export const submitFormService = async (
 export const getSubmissionService = async (id: string) => {
     const submission = await findSubmissionById(id);
     if (!submission) {
-        throw new AppError('Submission not found', 404);
+        throw new AppError({ message: 'Submission not found', errorType: ERROR_TYPES.NOT_FOUND });
     }
     return submission;
 };
@@ -69,7 +70,7 @@ export const getFormSubmissionsListService = async (formId: string) => {
     // Verify form exists
     const form = await prisma.eventForm.findUnique({ where: { id: formId } });
     if (!form) {
-        throw new AppError('Form not found', 404);
+        throw new AppError({ message: 'Form not found', errorType: ERROR_TYPES.NOT_FOUND });
     }
 
     return findSubmissionsByFormId(formId);
