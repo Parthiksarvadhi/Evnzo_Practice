@@ -13,13 +13,99 @@ enum UserRole {
   SUPER_ADMIN
 }
 
+enum FormTarget {
+  VISITOR
+  EXHIBITOR
+}
+
+enum FieldType {
+  TEXT
+  TEXTAREA
+  EMAIL
+  NUMBER
+  DROPDOWN
+  CHECKBOX
+  RADIO
+  FILE
+}
+
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  name         String
-  passwordHash String
-  role         UserRole @default(USER)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              Int              @id @default(autoincrement())
+  email           String           @unique
+  name            String
+  passwordHash    String
+  role            UserRole         @default(USER)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  formSubmissions FormSubmission[]
+}
+
+model Event {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  forms       EventForm[]
+}
+
+model EventForm {
+  id          String           @id @default(uuid())
+  eventId     String
+  event       Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  target      FormTarget
+  title       String
+  description String?
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  fields      FormField[]
+  submissions FormSubmission[]
+
+  @@unique([eventId, target]) // Typically only one active form per target per event
+}
+
+model FormField {
+  id          String       @id @default(uuid())
+  formId      String
+  form        EventForm    @relation(fields: [formId], references: [id], onDelete: Cascade)
+  name        String       // internal identifier, e.g., "company_name"
+  label       String       // Display label, e.g., "Company Name"
+  type        FieldType
+  isRequired  Boolean      @default(false)
+  options     String[]     // For Dropdown, Radio, Checkbox. Stored as JSON array or postgres array.
+  order       Int          @default(0) // For display ordering
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  answers     FormAnswer[]
+
+  @@unique([formId, name]) // Field names must be unique within a form
+}
+
+model FormSubmission {
+  id        String       @id @default(uuid())
+  formId    String
+  form      EventForm    @relation(fields: [formId], references: [id], onDelete: Cascade)
+  userId    Int?         // Optional: if the submitter is logged in
+  user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status    String       @default("SUBMITTED") // e.g., DRAFT, SUBMITTED, APPROVED
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  answers   FormAnswer[]
+}
+
+model FormAnswer {
+  id           String         @id @default(uuid())
+  submissionId String
+  submission   FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  fieldId      String
+  field        FormField      @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  value        String?        // Store answers as text/JSON depending on complexity
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([submissionId, fieldId]) // One answer per field per submission
 }
 

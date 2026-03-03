@@ -1,6 +1,5 @@
 import express from 'express';
 import type { Express } from 'express';
-import { END_POINTS } from '@constant';
 import { ErrorHandler, registerSecurityMiddlewares, responseHandler } from '@middleware';
 import { router as rootRouter } from '@routes/index';
 
@@ -16,7 +15,7 @@ export const createApp = (): Express => {
   registerSecurityMiddlewares(app);
   app.use(responseHandler);
 
-  app.use(END_POINTS.COMMON, rootRouter);
+  app.use('/', rootRouter);
 
   // Global error handler should be last
   app.use(ErrorHandler);
