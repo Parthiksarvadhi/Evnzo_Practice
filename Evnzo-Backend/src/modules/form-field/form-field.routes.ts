@@ -18,23 +18,23 @@ export const formFieldRouter = Router();
 formFieldRouter.get(
     '/form/:formId',
     validateRequest({ params: getFormFieldsSchema.shape.params }),
-    listFormFieldsController
+    (req, res, next) => { void listFormFieldsController(req, res).catch(next); }
 );
 
 // Organizer / Admin Routes 
 formFieldRouter.post(
     '/',
     validateRequest({ body: addFormFieldSchema.shape.body }),
-    addFormFieldController
+    (req, res, next) => { void addFormFieldController(req, res).catch(next); }
 );
 
 formFieldRouter.put(
     '/:id',
     validateRequest({ params: updateFormFieldSchema.shape.params, body: updateFormFieldSchema.shape.body }),
-    updateFormFieldController
+    (req, res, next) => { void updateFormFieldController(req, res).catch(next); }
 );
 
 formFieldRouter.delete(
     '/:id',
-    deleteFormFieldController
+    (req, res, next) => { void deleteFormFieldController(req, res).catch(next); }
 );
