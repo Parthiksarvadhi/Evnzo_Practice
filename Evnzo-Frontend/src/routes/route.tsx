@@ -21,6 +21,15 @@ const LoginPage = lazy(() =>
 const DashboardPage = lazy(() =>
   import('@/pages/dashboard/page').then((m) => ({ default: m.DashboardPage })),
 );
+const FormsListPage = lazy(() =>
+  import('@/pages/forms/forms-list/page').then((m) => ({ default: m.FormsListPage })),
+);
+const FormBuilderPage = lazy(() =>
+  import('@/pages/forms/form-builder/page').then((m) => ({ default: m.FormBuilderPage })),
+);
+const FormRendererPage = lazy(() =>
+  import('@/pages/forms/form-renderer/page').then((m) => ({ default: m.FormRendererPage })),
+);
 
 // ── Helper: wrap page in Suspense + ErrorBoundary ────────────────────
 function LazyPage({ children }: { children: React.ReactNode }) {
@@ -64,6 +73,14 @@ export const routes: RouteConfig[] = [
       </LazyPage>
     ),
   },
+  {
+    path: '/forms/render',
+    element: (
+      <LazyPage>
+        <FormRendererPage />
+      </LazyPage>
+    ),
+  },
 
   // ── Public routes — redirect to /dashboard if already logged in ──────
   {
@@ -97,6 +114,24 @@ export const routes: RouteConfig[] = [
             element: (
               <LazyPage>
                 <DashboardPage />
+              </LazyPage>
+            ),
+            requiredRole: ALL_ROLES,
+          },
+          {
+            path: 'forms',
+            element: (
+              <LazyPage>
+                <FormsListPage />
+              </LazyPage>
+            ),
+            requiredRole: ALL_ROLES,
+          },
+          {
+            path: 'forms/builder',
+            element: (
+              <LazyPage>
+                <FormBuilderPage />
               </LazyPage>
             ),
             requiredRole: ALL_ROLES,
