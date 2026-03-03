@@ -1,6 +1,8 @@
 export const END_POINTS = {
+  V1: '/api/v1',
   COMMON: '/api',
-  V1: '/v1',
+  AUTH: '/auth',
+  USER: '/user',
   HEALTH: '/health',
   USER: '/users',
   AUTH: '/auth',
@@ -10,4 +12,3 @@ export const END_POINTS = {
 } as const;
 
 export type EndpointKey = keyof typeof END_POINTS;
-
