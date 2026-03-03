@@ -4,9 +4,11 @@ export const END_POINTS = {
   AUTH: '/auth',
   USER: '/user',
   HEALTH: '/health',
-  EVENT_FORM: '/event-form',
-  FORM_FIELD: '/form-field',
-  FORM_SUBMISSION: '/form-submission',
+  USER: '/users',
+  AUTH: '/auth',
+  EVENT_FORMS: '/event-forms',
+  FORM_FIELDS: '/form-fields',
+  FORM_SUBMISSIONS: '/form-submissions',
 } as const;
 
 export type EndpointKey = keyof typeof END_POINTS;

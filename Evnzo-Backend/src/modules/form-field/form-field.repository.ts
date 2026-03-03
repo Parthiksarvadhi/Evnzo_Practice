@@ -1,28 +1,71 @@
-import { prisma } from '@db/prisma';
-import type { Prisma } from '@prisma/client';
+import prisma from '@db/prisma';
 
-export const createFormField = async (data: Prisma.FormFieldUncheckedCreateInput) => {
-    return prisma.formField.create({
-        data,
-    });
+interface AddFormFieldData {
+  formId: string;
+  name: string;
+  label: string;
+  type: 'TEXT' | 'TEXTAREA' | 'EMAIL' | 'NUMBER' | 'DROPDOWN' | 'CHECKBOX' | 'RADIO' | 'FILE';
+  isRequired?: boolean;
+  options?: string[];
+  order?: number;
+}
+
+interface UpdateFormFieldData {
+  label?: string;
+  isRequired?: boolean;
+  options?: string[];
+  order?: number;
+}
+
+export const addFormField = async (data: AddFormFieldData) => {
+  return await prisma.formField.create({
+    data: {
+      formId: data.formId,
+      name: data.name,
+      label: data.label,
+      type: data.type,
+      isRequired: data.isRequired ?? false,
+      options: JSON.stringify(data.options ?? []),
+      order: data.order ?? 0,
+    },
+  });
 };
 
-export const findFormFieldsByFormId = async (formId: string) => {
-    return prisma.formField.findMany({
-        where: { formId },
-        orderBy: { order: 'asc' },
-    });
+export const listFormFields = async (formId: string) => {
+  const fields = await prisma.formField.findMany({
+    where: { formId },
+    orderBy: {
+      order: 'asc',
+    },
+  });
+  
+  // Parse options JSON string to array
+  return fields.map(field => ({
+    ...field,
+    options: JSON.parse(field.options),
+  }));
 };
 
-export const updateFormField = async (id: string, data: Prisma.FormFieldUpdateInput) => {
-    return prisma.formField.update({
-        where: { id },
-        data,
-    });
+export const getFormFieldById = async (id: string) => {
+  return await prisma.formField.findUnique({
+    where: { id },
+  });
+};
+
+export const updateFormField = async (id: string, data: UpdateFormFieldData) => {
+  const updateData: any = { ...data };
+  if (data.options) {
+    updateData.options = JSON.stringify(data.options);
+  }
+  
+  return await prisma.formField.update({
+    where: { id },
+    data: updateData,
+  });
 };
 
 export const deleteFormField = async (id: string) => {
-    return prisma.formField.delete({
-        where: { id },
-    });
+  await prisma.formField.delete({
+    where: { id },
+  });
 };

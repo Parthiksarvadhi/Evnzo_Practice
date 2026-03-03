@@ -1,48 +1,35 @@
 import { Router } from 'express';
 import { validateRequest } from '@middleware/validation';
-// Assuming verifyToken and verifyRole middlewares exist in auth middleware
-// import { verifyToken, verifyRole } from '@middleware/auth'; 
 import {
-    createEventFormController,
-    deleteEventFormController,
-    getActiveEventFormController,
-    getEventFormByIdController,
-    updateEventFormController,
+  createEventFormController,
+  getActiveEventFormController,
+  getEventFormByIdController,
+  updateEventFormController,
+  deleteEventFormController,
 } from './event-form.controller';
 import {
-    createEventFormSchema,
-    getActiveEventFormSchema,
-    updateEventFormSchema,
+  createEventFormSchema,
+  getActiveEventFormSchema,
+  updateEventFormSchema,
 } from './event-form.validation';
 
 export const eventFormRouter = Router();
 
-// Public / User routes
+// Create event form
+eventFormRouter.post('/', validateRequest(createEventFormSchema), createEventFormController);
+
+// Get active form for event
 eventFormRouter.get(
-    '/active/:eventId',
-    validateRequest({ params: getActiveEventFormSchema.shape.params, query: getActiveEventFormSchema.shape.query }),
-    (req, res, next) => { void getActiveEventFormController(req, res).catch(next); }
+  '/:eventId/active',
+  validateRequest(getActiveEventFormSchema),
+  getActiveEventFormController
 );
 
-eventFormRouter.get(
-    '/:id',
-    (req, res, next) => { void getEventFormByIdController(req, res).catch(next); }
-);
+// Get form by ID
+eventFormRouter.get('/:id', getEventFormByIdController);
 
-// Organizer / Admin Routes (ideally protected by verifyToken and verifyRole(['ADMIN']))
-eventFormRouter.post(
-    '/',
-    validateRequest({ body: createEventFormSchema.shape.body }),
-    (req, res, next) => { void createEventFormController(req, res).catch(next); }
-);
+// Update form
+eventFormRouter.put('/:id', validateRequest(updateEventFormSchema), updateEventFormController);
 
-eventFormRouter.put(
-    '/:id',
-    validateRequest({ params: updateEventFormSchema.shape.params, body: updateEventFormSchema.shape.body }),
-    (req, res, next) => { void updateEventFormController(req, res).catch(next); }
-);
-
-eventFormRouter.delete(
-    '/:id',
-    (req, res, next) => { void deleteEventFormController(req, res).catch(next); }
-);
+// Delete form
+eventFormRouter.delete('/:id', deleteEventFormController);

@@ -12,9 +12,9 @@ export const router = Router();
 router.use(`${END_POINTS.V1}${END_POINTS.HEALTH}`, healthRouter);
 router.use(`${END_POINTS.V1}${END_POINTS.USER}`, userRouter);
 router.use(`${END_POINTS.V1}${END_POINTS.AUTH}`, authRouter);
-router.use(`${END_POINTS.V1}${END_POINTS.EVENT_FORM}`, eventFormRouter);
-router.use(`${END_POINTS.V1}${END_POINTS.FORM_FIELD}`, formFieldRouter);
-router.use(`${END_POINTS.V1}${END_POINTS.FORM_SUBMISSION}`, formSubmissionRouter);
+router.use(`${END_POINTS.V1}${END_POINTS.EVENT_FORMS}`, eventFormRouter);
+router.use(`${END_POINTS.V1}${END_POINTS.FORM_FIELDS}`, formFieldRouter);
+router.use(`${END_POINTS.V1}${END_POINTS.FORM_SUBMISSIONS}`, formSubmissionRouter);
 
 export default router;
 

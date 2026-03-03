@@ -1,32 +1,27 @@
 import { Router } from 'express';
 import { validateRequest } from '@middleware/validation';
 import {
-    getFormSubmissionsListController,
-    getSubmissionController,
-    submitFormController,
+  submitFormController,
+  getSubmissionController,
+  getFormSubmissionsListController,
 } from './form-submission.controller';
 import {
-    getSubmissionSchema,
-    submitFormSchema,
+  submitFormSchema,
+  getSubmissionSchema,
+  getFormSubmissionsListSchema,
 } from './form-submission.validation';
 
 export const formSubmissionRouter = Router();
 
-// Public / User Routes
-formSubmissionRouter.post(
-    '/',
-    validateRequest({ body: submitFormSchema.shape.body }),
-    (req, res, next) => { void submitFormController(req, res).catch(next); }
-);
+// Submit form
+formSubmissionRouter.post('/', validateRequest(submitFormSchema), submitFormController);
 
-// Organizer / Admin Routes
-formSubmissionRouter.get(
-    '/:id',
-    validateRequest({ params: getSubmissionSchema.shape.params }),
-    (req, res, next) => { void getSubmissionController(req, res).catch(next); }
-);
+// Get submission by ID
+formSubmissionRouter.get('/:id', validateRequest(getSubmissionSchema), getSubmissionController);
 
+// Get all submissions for a form
 formSubmissionRouter.get(
-    '/form/:formId',
-    (req, res, next) => { void getFormSubmissionsListController(req, res).catch(next); }
+  '/form/:formId',
+  validateRequest(getFormSubmissionsListSchema),
+  getFormSubmissionsListController
 );
