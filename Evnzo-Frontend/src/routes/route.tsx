@@ -21,14 +21,17 @@ const LoginPage = lazy(() =>
 const DashboardPage = lazy(() =>
   import('@/pages/dashboard/page').then((m) => ({ default: m.DashboardPage })),
 );
-const FormsListPage = lazy(() =>
-  import('@/pages/forms/forms-list/page').then((m) => ({ default: m.FormsListPage })),
+const EventsPage = lazy(() =>
+  import('@/pages/events/page').then((m) => ({ default: m.EventsPage })),
 );
-const FormBuilderPage = lazy(() =>
-  import('@/pages/forms/form-builder/page').then((m) => ({ default: m.FormBuilderPage })),
+const CreateFormPage = lazy(() =>
+  import('@/pages/forms/create/page').then((m) => ({ default: m.CreateFormPage })),
 );
-const FormRendererPage = lazy(() =>
-  import('@/pages/forms/form-renderer/page').then((m) => ({ default: m.FormRendererPage })),
+const ManageFormFieldsPage = lazy(() =>
+  import('@/pages/forms/manage/page').then((m) => ({ default: m.ManageFormFieldsPage })),
+);
+const PublicFormPage = lazy(() =>
+  import('@/pages/forms/view/page').then((m) => ({ default: m.PublicFormPage })),
 );
 
 // ── Helper: wrap page in Suspense + ErrorBoundary ────────────────────
@@ -74,10 +77,10 @@ export const routes: RouteConfig[] = [
     ),
   },
   {
-    path: '/forms/render',
+    path: '/form/:id',
     element: (
       <LazyPage>
-        <FormRendererPage />
+        <PublicFormPage />
       </LazyPage>
     ),
   },
@@ -119,19 +122,28 @@ export const routes: RouteConfig[] = [
             requiredRole: ALL_ROLES,
           },
           {
-            path: 'forms',
+            path: 'events',
             element: (
               <LazyPage>
-                <FormsListPage />
+                <EventsPage />
               </LazyPage>
             ),
             requiredRole: ALL_ROLES,
           },
           {
-            path: 'forms/builder',
+            path: 'forms/create',
             element: (
               <LazyPage>
-                <FormBuilderPage />
+                <CreateFormPage />
+              </LazyPage>
+            ),
+            requiredRole: ALL_ROLES,
+          },
+          {
+            path: 'forms/:id/fields',
+            element: (
+              <LazyPage>
+                <ManageFormFieldsPage />
               </LazyPage>
             ),
             requiredRole: ALL_ROLES,

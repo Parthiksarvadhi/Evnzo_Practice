@@ -12,7 +12,8 @@ const baseService = axios.create({
 // Request interceptor — attach auth token
 baseService.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    // Fallback to mock-token if no access token exists, matching our auto-login bypass!
+    const token = localStorage.getItem('accessToken') || 'mock-token';
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

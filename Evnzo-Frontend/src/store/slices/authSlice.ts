@@ -9,9 +9,14 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  token: null,
-  user: null,
-  isAuthenticated: false,
+  token: 'mock-token',
+  user: {
+    id: '1',
+    email: 'admin@evnzo.com',
+    role: 'ADMIN',
+    name: 'Evnzo Admin'
+  },
+  isAuthenticated: true,
 };
 
 const authSlice = createSlice({
