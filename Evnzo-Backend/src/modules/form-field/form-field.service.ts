@@ -1,57 +1,54 @@
+import {
+  addFormField,
+  deleteFormField,
+  getFormFieldById,
+  listFormFields,
+  updateFormField,
+} from './form-field.repository';
 import { AppError } from '@utils/appError';
 import { ERROR_TYPES } from '@constant/errorTypes.constant';
-import {
-    createFormField,
-    deleteFormField,
-    findFormFieldsByFormId,
-    updateFormField,
-} from './form-field.repository';
-import { prisma } from '@db/prisma';
-import type { Prisma } from '@prisma/client';
 
-export const addFormFieldService = async (data: Prisma.FormFieldUncheckedCreateInput) => {
-    // Check if form exists
-    const form = await prisma.eventForm.findUnique({ where: { id: data.formId } });
-    if (!form) {
-        throw new AppError({ message: 'Event Form not found', errorType: ERROR_TYPES.NOT_FOUND });
-    }
+interface AddFormFieldData {
+  formId: string;
+  name: string;
+  label: string;
+  type: 'TEXT' | 'TEXTAREA' | 'EMAIL' | 'NUMBER' | 'DROPDOWN' | 'CHECKBOX' | 'RADIO' | 'FILE';
+  isRequired?: boolean;
+  options?: string[];
+  order?: number;
+}
 
-    // Check if field name is already taken in this form
-    const existingField = await prisma.formField.findUnique({
-        where: {
-            formId_name: {
-                formId: data.formId,
-                name: data.name,
-            },
-        },
-    });
+interface UpdateFormFieldData {
+  label?: string;
+  isRequired?: boolean;
+  options?: string[];
+  order?: number;
+}
 
-    if (existingField) {
-        throw new AppError({ message: `Field with name '${data.name}' already exists in this form`, errorType: ERROR_TYPES.CONFLICT });
-    }
-
-    return createFormField(data);
+export const addFormFieldService = async (data: AddFormFieldData) => {
+  return await addFormField(data);
 };
 
 export const listFormFieldsService = async (formId: string) => {
-    // We can just fetch them directly. If form doesn't exist, it returns an empty array.
-    return findFormFieldsByFormId(formId);
+  return await listFormFields(formId);
 };
 
-export const updateFormFieldService = async (id: string, data: Prisma.FormFieldUpdateInput) => {
-    const field = await prisma.formField.findUnique({ where: { id } });
-    if (!field) {
-        throw new AppError({ message: 'Form field not found', errorType: ERROR_TYPES.NOT_FOUND });
-    }
+export const updateFormFieldService = async (id: string, data: UpdateFormFieldData) => {
+  const field = await getFormFieldById(id);
 
-    return updateFormField(id, data);
+  if (!field) {
+    throw new AppError('Form field not found', 404, ERROR_TYPES.NOT_FOUND);
+  }
+
+  return await updateFormField(id, data);
 };
 
 export const deleteFormFieldService = async (id: string) => {
-    const field = await prisma.formField.findUnique({ where: { id } });
-    if (!field) {
-        throw new AppError({ message: 'Form field not found', errorType: ERROR_TYPES.NOT_FOUND });
-    }
+  const field = await getFormFieldById(id);
 
-    return deleteFormField(id);
+  if (!field) {
+    throw new AppError('Form field not found', 404, ERROR_TYPES.NOT_FOUND);
+  }
+
+  await deleteFormField(id);
 };

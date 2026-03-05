@@ -1,54 +1,104 @@
-import { prisma } from '@db/prisma';
-import type { Prisma } from '@prisma/client';
+import prisma from '@db/prisma';
 
-export const createEventForm = async (data: Prisma.EventFormCreateInput) => {
-    return prisma.eventForm.create({
-        data,
-        include: {
-            fields: true,
+interface CreateEventFormData {
+  eventId: string;
+  target: 'VISITOR' | 'EXHIBITOR';
+  title: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+interface UpdateEventFormData {
+  title?: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+export const createEventForm = async (data: CreateEventFormData) => {
+  return await prisma.eventForm.create({
+    data: {
+      eventId: data.eventId,
+      target: data.target,
+      title: data.title,
+      description: data.description,
+      isActive: data.isActive ?? true,
+    },
+    include: {
+      fields: {
+        orderBy: {
+          order: 'asc',
         },
-    });
+      },
+    },
+  });
 };
 
-export const findEventFormById = async (id: string) => {
-    return prisma.eventForm.findUnique({
-        where: { id },
-        include: {
-            fields: {
-                orderBy: { order: 'asc' },
-            },
-            event: true,
+export const getActiveEventForm = async (eventId: string, target: 'VISITOR' | 'EXHIBITOR') => {
+  const form = await prisma.eventForm.findFirst({
+    where: {
+      eventId,
+      target,
+      isActive: true,
+    },
+    include: {
+      fields: {
+        orderBy: {
+          order: 'asc',
         },
-    });
+      },
+    },
+  });
+  
+  if (!form) return null;
+  
+  return {
+    ...form,
+    fields: form.fields.map(field => ({
+      ...field,
+      options: JSON.parse(field.options),
+    })),
+  };
 };
 
-export const findActiveEventForm = async (eventId: string, target: 'VISITOR' | 'EXHIBITOR') => {
-    return prisma.eventForm.findFirst({
-        where: {
-            eventId,
-            target,
-            isActive: true,
+export const getEventFormById = async (id: string) => {
+  const form = await prisma.eventForm.findUnique({
+    where: { id },
+    include: {
+      fields: {
+        orderBy: {
+          order: 'asc',
         },
-        include: {
-            fields: {
-                orderBy: { order: 'asc' },
-            },
-        },
-    });
+      },
+    },
+  });
+  
+  if (!form) return null;
+  
+  return {
+    ...form,
+    fields: form.fields.map(field => ({
+      ...field,
+      options: JSON.parse(field.options),
+    })),
+  };
 };
 
-export const updateEventForm = async (id: string, data: Prisma.EventFormUpdateInput) => {
-    return prisma.eventForm.update({
-        where: { id },
-        data,
-        include: {
-            fields: true,
+export const updateEventForm = async (id: string, data: UpdateEventFormData) => {
+  return await prisma.eventForm.update({
+    where: { id },
+    data,
+    include: {
+      fields: {
+        orderBy: {
+          order: 'asc',
         },
-    });
+      },
+    },
+  });
 };
 
 export const deleteEventForm = async (id: string) => {
-    return prisma.eventForm.delete({
-        where: { id },
-    });
+  await prisma.eventForm.delete({
+    where: { id },
+  });
 };

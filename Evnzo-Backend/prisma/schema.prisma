@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 enum UserRole {
@@ -64,33 +64,33 @@ model EventForm {
   fields      FormField[]
   submissions FormSubmission[]
 
-  @@unique([eventId, target]) // Typically only one active form per target per event
+  @@unique([eventId, target])
 }
 
 model FormField {
-  id          String       @id @default(uuid())
-  formId      String
-  form        EventForm    @relation(fields: [formId], references: [id], onDelete: Cascade)
-  name        String       // internal identifier, e.g., "company_name"
-  label       String       // Display label, e.g., "Company Name"
-  type        FieldType
-  isRequired  Boolean      @default(false)
-  options     String[]     // For Dropdown, Radio, Checkbox. Stored as JSON array or postgres array.
-  order       Int          @default(0) // For display ordering
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  answers     FormAnswer[]
+  id         String       @id @default(uuid())
+  formId     String
+  form       EventForm    @relation(fields: [formId], references: [id], onDelete: Cascade)
+  name       String
+  label      String
+  type       FieldType
+  isRequired Boolean      @default(false)
+  options    String       @default("[]")
+  order      Int          @default(0)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  answers    FormAnswer[]
 
-  @@unique([formId, name]) // Field names must be unique within a form
+  @@unique([formId, name])
 }
 
 model FormSubmission {
   id        String       @id @default(uuid())
   formId    String
   form      EventForm    @relation(fields: [formId], references: [id], onDelete: Cascade)
-  userId    Int?         // Optional: if the submitter is logged in
+  userId    Int?
   user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  status    String       @default("SUBMITTED") // e.g., DRAFT, SUBMITTED, APPROVED
+  status    String       @default("SUBMITTED")
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
   answers   FormAnswer[]
@@ -102,10 +102,10 @@ model FormAnswer {
   submission   FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   fieldId      String
   field        FormField      @relation(fields: [fieldId], references: [id], onDelete: Cascade)
-  value        String?        // Store answers as text/JSON depending on complexity
+  value        String?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
-  @@unique([submissionId, fieldId]) // One answer per field per submission
+  @@unique([submissionId, fieldId])
 }
 

@@ -1,70 +1,76 @@
-import { prisma } from '@db/prisma';
+import prisma from '@db/prisma';
+
+interface FormAnswer {
+  fieldId: string;
+  value: string | null;
+}
 
 export const createFormSubmission = async (
-    formId: string,
-    userId: number | undefined,
-    answers: { fieldId: string; value: string | null }[]
+  formId: string,
+  userId: number | undefined,
+  answers: FormAnswer[]
 ) => {
-    return prisma.formSubmission.create({
-        data: {
-            formId,
-            userId,
-            answers: {
-                create: answers.map((ans) => ({
-                    fieldId: ans.fieldId,
-                    value: ans.value,
-                })),
-            },
-        },
+  return await prisma.formSubmission.create({
+    data: {
+      formId,
+      userId,
+      status: 'SUBMITTED',
+      answers: {
+        create: answers.map((answer) => ({
+          fieldId: answer.fieldId,
+          value: answer.value,
+        })),
+      },
+    },
+    include: {
+      answers: {
         include: {
-            answers: {
-                include: {
-                    field: true,
-                },
-            },
-            user: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                }
-            }
+          field: true,
         },
-    });
+      },
+    },
+  });
 };
 
-export const findSubmissionById = async (id: string) => {
-    return prisma.formSubmission.findUnique({
-        where: { id },
+export const getFormSubmissionById = async (id: string) => {
+  return await prisma.formSubmission.findUnique({
+    where: { id },
+    include: {
+      answers: {
         include: {
-            answers: {
-                include: {
-                    field: true,
-                },
-            },
-            user: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                }
-            }
+          field: true,
         },
-    });
+      },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
 };
 
-export const findSubmissionsByFormId = async (formId: string) => {
-    return prisma.formSubmission.findMany({
-        where: { formId },
+export const getFormSubmissionsList = async (formId: string) => {
+  return await prisma.formSubmission.findMany({
+    where: { formId },
+    include: {
+      answers: {
         include: {
-            user: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                },
-            },
+          field: true,
         },
-        orderBy: { createdAt: 'desc' },
-    });
+      },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
 };
