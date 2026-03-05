@@ -1,10 +1,16 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, NavLink } from 'react-router-dom';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { cn } from '@/lib/utils';
-import { Menu } from 'lucide-react';
+import { Menu, Home, PlusSquare, Calendar } from 'lucide-react';
 
 function AppShellContent() {
   const { isCollapsed, toggle } = useSidebar();
+
+  const navItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: Home, end: true },
+    { path: '/dashboard/events', label: 'Events', icon: Calendar },
+    { path: '/dashboard/forms/create', label: 'Create Form', icon: PlusSquare },
+  ];
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -21,10 +27,24 @@ function AppShellContent() {
           )}
         </div>
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {/* Add your sidebar navigation items here */}
-          <p className="text-xs text-muted-foreground px-3 py-2">
-            Add navigation items in AppShell.tsx
-          </p>
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.end}
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                  isActive
+                    ? 'bg-primary/10 text-primary font-medium'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                )
+              }
+            >
+              <item.icon className="h-4 w-4" />
+              {!isCollapsed && <span>{item.label}</span>}
+            </NavLink>
+          ))}
         </nav>
       </aside>
 
@@ -39,7 +59,7 @@ function AppShellContent() {
             <Menu className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
           </button>
           <div className="flex-1" />
-          {/* Add your top bar content here (user menu, notifications, etc.) */}
+          {/* Add your top bar content here */}
         </header>
 
         {/* Page content */}
