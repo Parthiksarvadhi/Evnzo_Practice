@@ -12,5 +12,7 @@ export const getPrismaClient = (): PrismaClient => {
   return prismaInstance;
 };
 
-export const prisma = getPrismaClient();
+const prisma = getPrismaClient();
+
+export default prisma;
 
