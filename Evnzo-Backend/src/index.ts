@@ -2,7 +2,7 @@ import http from 'http';
 import { createApp } from '@app/app';
 import { environment } from '@config/config';
 import { GlobalErrorHandler } from '@middleware';
-import { prisma } from '@db/prisma';
+import prisma from '@db/prisma';
 import { logger } from '@logger/logger';
 
 // Ensure BigInt is serialized correctly when present in JSON responses
